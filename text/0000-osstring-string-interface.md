@@ -59,6 +59,22 @@ fn ends_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 /// Returns true if `needle` is a substring of `self`.
 fn contains_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 
+/// Returns true if `self` matches `pat`.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+fn contains<'a, P>(&'a self, pat: P) -> bool where P: Pattern<'a> + Clone;
+
+/// Returns true if the beginning of `self` matches `pat`.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+fn starts_with<'a, P>(&'a self, pat: P) -> bool where P: Pattern<'a>;
+
+/// Returns true if the end of `self` matches `pat`.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+fn ends_with<'a, P>(&'a self, pat: P) -> bool
+    where P: Pattern<'a>, P::Searcher: ReverseSearcher<'a>;
+
 /// Returns true if the string starts with a valid UTF-8 sequence
 /// equal to the given `&str`.
 fn starts_with_str(&self, prefix: &str) -> bool;
@@ -89,6 +105,12 @@ fn split<'a>(&'a self, boundary: char) -> Split<'a>;
 
 The first three of these (`starts_with_os`, `ends_with_os`, and
 `contains_os`) test for `OsStr` substrings of an `OsStr`.
+
+The remainder implement a subset of the string pattern matching
+functionality of `OsStr`.  These functions act the same as the `str`
+versions, except that some of them require an additional `Clone` bound
+on the pattern.  Note that patterns can only match UTF-8 sections of
+the `OsStr`.
 
 FIXME
 These methods fall into two categories.  The first four
