@@ -84,6 +84,7 @@ fn ends_with<'a, P>(&'a self, pat: P) -> bool
 fn split<'a, P>(&'a self, pat: P) -> Split<'a, P> where P: Pattern<'a> + Clone;
 
 struct Split<'a, P> where P: Pattern<'a> { ... }
+impl<'a, P> Clone for Split<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
 impl<'a, P> Iterator for Split<'a, P> where P: Pattern<'a> + Clone {
     type Item = &'a OsStr;
     ...
