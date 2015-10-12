@@ -50,14 +50,14 @@ transfers ownership.  This operation can be done without a copy if the
 
 OsStr will get the following new methods:
 ```rust
+/// Returns true if `needle` is a substring of `self`.
+fn contains_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
+
 /// Returns true if `needle` is a prefix of `self`.
 fn starts_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 
 /// Returns true if `needle` is a suffix of `self`.
 fn ends_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
-
-/// Returns true if `needle` is a substring of `self`.
-fn contains_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 
 /// Returns true if `self` matches `pat`.
 ///
@@ -103,8 +103,8 @@ fn split_off_str(&self, boundary: char) -> Option<(&str, &OsStr)>;
 fn split<'a>(&'a self, boundary: char) -> Split<'a>;
 ```
 
-The first three of these (`starts_with_os`, `ends_with_os`, and
-`contains_os`) test for `OsStr` substrings of an `OsStr`.
+The first three of these (`contains_os`, `starts_with_os`, and
+`ends_with_os`) test for `OsStr` substrings of an `OsStr`.
 
 The remainder implement a subset of the string pattern matching
 functionality of `OsStr`.  These functions act the same as the `str`
