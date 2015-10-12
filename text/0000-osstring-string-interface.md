@@ -89,6 +89,8 @@ impl<'a, P> Iterator for Split<'a, P> where P: Pattern<'a> + Clone {
     type Item = &'a OsStr;
     ...
 }
+impl<'a, P> DoubleEndedIterator for Split<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
 
 /// Returns true if the string starts with a valid UTF-8 sequence
 /// equal to the given `&str`.
