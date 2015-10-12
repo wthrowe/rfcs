@@ -59,6 +59,8 @@ fn starts_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 /// Returns true if `needle` is a suffix of `self`.
 fn ends_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 
+use std::str::pattern::{Pattern, ReverseSearcher};
+
 /// Returns true if `self` matches `pat`.
 ///
 /// Note that patterns can only match UTF-8 sections of the `OsStr`.
