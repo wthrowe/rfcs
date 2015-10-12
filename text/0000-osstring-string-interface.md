@@ -50,6 +50,15 @@ transfers ownership.  This operation can be done without a copy if the
 
 OsStr will get the following new methods:
 ```rust
+/// Returns true if `needle` is a prefix of `self`.
+fn starts_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
+
+/// Returns true if `needle` is a suffix of `self`.
+fn ends_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
+
+/// Returns true if `needle` is a substring of `self`.
+fn contains_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
+
 /// Returns true if the string starts with a valid UTF-8 sequence
 /// equal to the given `&str`.
 fn starts_with_str(&self, prefix: &str) -> bool;
@@ -78,6 +87,10 @@ fn split_off_str(&self, boundary: char) -> Option<(&str, &OsStr)>;
 fn split<'a>(&'a self, boundary: char) -> Split<'a>;
 ```
 
+The first three of these (`starts_with_os`, `ends_with_os`, and
+`contains_os`) test for `OsStr` substrings of an `OsStr`.
+
+FIXME
 These methods fall into two categories.  The first four
 (`starts_with_str`, `remove_prefix_str`, `slice_shift_char`, and
 `split_off_str`) interpret a prefix of the `OsStr` as UTF-8 data,
