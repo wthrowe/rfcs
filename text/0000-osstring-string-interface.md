@@ -77,6 +77,18 @@ fn starts_with<'a, P>(&'a self, pat: P) -> bool where P: Pattern<'a>;
 fn ends_with<'a, P>(&'a self, pat: P) -> bool
     where P: Pattern<'a>, P::Searcher: ReverseSearcher<'a>;
 
+/// An iterator over substrings of `self`, separated by characters
+/// matched by a pattern.  See `str::split` for details.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+fn split<'a, P>(&'a self, pat: P) -> Split<'a, P> where P: Pattern<'a> + Clone;
+
+struct Split<'a, P> where P: Pattern<'a> { ... }
+impl<'a, P> Iterator for Split<'a, P> where P: Pattern<'a> + Clone {
+    type Item = &'a OsStr;
+    ...
+}
+
 /// Returns true if the string starts with a valid UTF-8 sequence
 /// equal to the given `&str`.
 fn starts_with_str(&self, prefix: &str) -> bool;
@@ -95,14 +107,6 @@ fn slice_shift_char(&self) -> Option<(char, &OsStr)>;
 /// `boundary`, returns the sections before and after the boundary
 /// character.  Otherwise returns `None`.
 fn split_off_str(&self, boundary: char) -> Option<(&str, &OsStr)>;
-
-/// Returns an iterator over sections of the `OsStr` separated by
-/// the given character.
-///
-/// # Panics
-///
-/// Panics if the boundary character is not ASCII.
-fn split<'a>(&'a self, boundary: char) -> Split<'a>;
 ```
 
 The first three of these (`contains_os`, `starts_with_os`, and
@@ -265,12 +269,14 @@ example above.
 
 # Unresolved questions
 
-It is not obvious that the `split` function's restriction to ASCII
-dividers is the correct interface.
+The correct behavior of `split` with a pattern that matches the empty
+string is not clear.  Possibilities include:
 
-There are many directions this interface could be extended in.  It
-would be possible to proved a subset of this functionality using
-`OsStr` rather than `str` in the interface, and it would also be
-possible to create functions that interacted with non-prefix portions
-of `OsStr`s.  It is not clear whether the usefulness of these
-interfaces is high enough to be worth pursuing them at this time.
+* panic
+* match on "character boundaries", probably defined as the ends of the
+  string and adjacent to each UTF-8 character.
+* define the behavior to commute with `to_string_lossy` (assuming the
+  pattern does not match anything including the replacement character)
+
+In any case, care should be taken to handle patterns that can match
+both the empty string and non-empty strings correctly.
