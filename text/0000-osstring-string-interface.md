@@ -38,7 +38,7 @@ processing needs of rustc.
 /// Converts an `OsString` into a `String`, avoiding a copy if possible.
 ///
 /// Any non-Unicode sequences are replaced with U+FFFD REPLACEMENT CHARACTER.
-pub fn into_string_lossy(self) -> String;
+fn into_string_lossy(self) -> String;
 
 ```
 
