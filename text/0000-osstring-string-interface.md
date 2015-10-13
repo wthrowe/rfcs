@@ -59,7 +59,7 @@ fn starts_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 /// Returns true if `needle` is a suffix of `self`.
 fn ends_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 
-use std::str::pattern::{Pattern, ReverseSearcher};
+use std::str::pattern::{DoubleEndedSearcher, Pattern, ReverseSearcher};
 
 /// Returns true if `self` matches `pat`.
 ///
@@ -77,11 +77,11 @@ fn starts_with<'a, P>(&'a self, pat: P) -> bool where P: Pattern<'a>;
 fn ends_with<'a, P>(&'a self, pat: P) -> bool
     where P: Pattern<'a>, P::Searcher: ReverseSearcher<'a>;
 
-/// An iterator over substrings of `self`, separated by characters
+/// An iterator over substrings of `self` separated by characters
 /// matched by a pattern.  See `str::split` for details.
 ///
 /// Note that patterns can only match UTF-8 sections of the `OsStr`.
-fn split<'a, P>(&'a self, pat: P) -> Split<'a, P> where P: Pattern<'a> + Clone;
+fn split<'a, P>(&'a self, pat: P) -> Split<'a, P> where P: Pattern<'a>;
 
 struct Split<'a, P> where P: Pattern<'a> { ... }
 impl<'a, P> Clone for Split<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
@@ -90,6 +90,23 @@ impl<'a, P> Iterator for Split<'a, P> where P: Pattern<'a> + Clone {
     ...
 }
 impl<'a, P> DoubleEndedIterator for Split<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
+
+/// An iterator over substrings of `self` separated by characters
+/// matched by a pattern, in reverse order.  See `str::rsplit` for
+/// deatils.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+fn rsplit<'a, P>(&'a self, pat: P) -> RSplit<'a, P> where P: Pattern<'a>;
+
+struct RSplit<'a, P> where P: Pattern<'a> { ... }
+impl<'a, P> Clone for RSplit<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Iterator for RSplit<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: ReverseSearcher<'a> {
+    type Item = &'a OsStr;
+    ...
+}
+impl<'a, P> DoubleEndedIterator for RSplit<'a, P>
     where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
 
 /// Returns true if the string starts with a valid UTF-8 sequence
@@ -235,40 +252,34 @@ the probably expected `OsStr`).
 
 ## Interfaces without `str`
 
-Versions of the `*_str` functions that take or return `&OsStr`s seem
-more natural, but in at least some of the cases it is not possible to
-implement such an interface.  For example, on Windows, the following
-should hold using a hypothetical `remove_prefix(&self, &OsStr) ->
-Option<&OsStr>`:
+Versions of the pattern-accepting functions that use a variant adapted
+ton `&OsStr`s seem more natural, but in at least some of the cases it
+is not possible to implement such an interface.  For example, on
+Windows, the following should hold using a hypothetical
+`split(&self, &OsStr) -> Split`:
 
 ```rust
 let string = OsString::from("😺"); // [0xD83D, 0xDE3A] in UTF-16
 let prefix: OsString = OsStringExt::from_wide(&[0xD83D]);
 let suffix: OsString = OsStringExt::from_wide(&[0xDE3A]);
 
-assert_eq!(string.remove_prefix(&prefix[..]), Some(&suffix[..]));
+assert_eq!(string.split(&suffix[..]).next(), Some(&prefix[..]));
 ```
 
-However, the slice `&suffix[..]` (internally `[0xED, 0xB8, 0xBA]`)
+However, the slice `&prefix[..]` (internally `[0xED, 0xA0, 0xBD]`)
 does not occur anywhere in `string` (internally `[0xF0, 0x9F, 0x98,
 0xBA]`), so there would be no way to construct the return value of
 such a function.
 
-## Different forms for `split`
+## Stricter bounds on the pattern-accepting iterator constructors
 
-The restriction of the argument of `split` to ASCII characters is a
-very conservative choice.  It would be possible to allow any Unicode
-character as the divider, at the expense of creating somewhat strange
-situations where, for example, applying `split` followed by `concat`
-produces a string containing the divider character.  As any interface
-manipulating OS strings is generally non-Unicode, needing to split on
-non-ASCII characters is likely rare.
-
-In some ways, it would be more natural to split on bytes in Unix and
-16-bit code units in Windows, but it would be difficult to present a
-cross-platform interface for such functionality and implementations on
-Windows would have similar issues to those in the `remove_prefix`
-example above.
+The proposed bounds on the pattern-accepting functions are the weakest
+possible.  This means that one can often construct an "iterator" that
+does not actually implement the `Iterator` trait.  For example, one
+can call `split` with any `P: Pattern<'a>`, but the resulting `Split`
+struct only implements the `Iterator` trait if `P` is additionally
+`Clone`. This is likely to be confusing, so tightening the bounds may
+be desirable.
 
 # Unresolved questions
 
