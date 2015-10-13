@@ -220,18 +220,10 @@ of building up an `OsString` from parts than repeatedly calling
 
 # Drawbacks
 
-This is a somewhat unusual string interface in that much of the
-functionality either accepts or returns a different type of string
-than the one the interface is designed to work with (`str` instead of
-the probably expected `OsStr`).
-
-# Alternatives
-
-## Interfaces without `str`
-
-Versions of the pattern-accepting functions that use a variant adapted
-ton `&OsStr`s seem more natural, but in at least some of the cases it
-is not possible to implement such an interface.  For example, on
+This is a somewhat unusual string interface in that many of the
+functions only accepts UTF-8 encoded data, while the type can encode
+more general strings.  Unfortunately, in many cases it is not possible
+to generalize the interface to accept non-UTF-8 data.  For example, on
 Windows, the following should hold using a hypothetical
 `split(&self, &OsStr) -> Split`:
 
@@ -245,8 +237,10 @@ assert_eq!(string.split(&suffix[..]).next(), Some(&prefix[..]));
 
 However, the slice `&prefix[..]` (internally `[0xED, 0xA0, 0xBD]`)
 does not occur anywhere in `string` (internally `[0xF0, 0x9F, 0x98,
-0xBA]`), so there would be no way to construct the return value of
-such a function.
+0xBA]`), so there would be no way to construct the values returned by
+such an iterator.
+
+# Alternatives
 
 ## Stricter bounds on the pattern-accepting iterator constructors
 
