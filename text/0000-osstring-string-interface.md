@@ -203,29 +203,6 @@ let (name, kind) = match s.split_off_str('=') {
 };
 ```
 
-### `split`
-
-This is similar to the similarly named function on `str`, except the
-splitting boundary is restricted to be an ASCII character instead of a
-general pattern.  ASCII characters have well-defined meanings in both
-flavors of OS string, and the portions before and after such a
-character are always well-formed OS strings.
-
-This is intended for interpreting OS strings containing several paths.
-Using this function will generally restrict the allowed paths to those
-not containing the separator, but this is a common limitation already
-in such interfaces.  For example, rustc's `--emit dep-info=bar.d,link`
-could be processed as:
-```rust
-let arg = OsString::from("dep-info=bar.d,link");
-
-for part in arg.split(',') {
-    match part.split_off_str('=') {
-        ...
-    }
-}
-```
-
 ## `SliceConcatExt`
 
 Implement the trait
