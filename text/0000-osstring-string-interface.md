@@ -109,6 +109,22 @@ impl<'a, P> Iterator for RSplit<'a, P>
 impl<'a, P> DoubleEndedIterator for RSplit<'a, P>
     where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
 
+/// An iterator over matches of a pattern in `self`.  See
+/// `str::matches` for details.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+fn matches<'a, P>(&'a self, pat: P) -> Matches<'a, P> where P: Pattern<'a>;
+
+struct Matches<'a, P> // with the same bounds and impls as Split
+
+/// An iterator over matches of a pattern in `self`, in reverse
+/// order.  See `str::rmatches` for details.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+fn rmatches<'a, P>(&'a self, pat: P) -> RMatches<'a, P> where P: Pattern<'a>;
+
+struct RMatches<'a, P> // with the same bounds and impls as RSplit
+
 /// Returns true if the string starts with a valid UTF-8 sequence
 /// equal to the given `&str`.
 fn starts_with_str(&self, prefix: &str) -> bool;
@@ -254,8 +270,8 @@ be desirable.
 
 # Unresolved questions
 
-The correct behavior of `split` with a pattern that matches the empty
-string is not clear.  Possibilities include:
+The correct behavior of `split` or `matches` with a pattern that
+matches the empty string is not clear.  Possibilities include:
 
 * panic
 * match on "character boundaries", probably defined as the ends of the
