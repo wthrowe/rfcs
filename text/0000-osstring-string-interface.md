@@ -85,7 +85,8 @@ fn ends_with<'a, P>(&'a self, pat: P) -> bool
 fn split<'a, P>(&'a self, pat: P) -> Split<'a, P> where P: Pattern<'a>;
 
 struct Split<'a, P> where P: Pattern<'a> { ... }
-impl<'a, P> Clone for Split<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Clone for Split<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
 impl<'a, P> Iterator for Split<'a, P> where P: Pattern<'a> + Clone {
     type Item = &'a OsStr;
     ...
@@ -101,7 +102,8 @@ impl<'a, P> DoubleEndedIterator for Split<'a, P>
 fn rsplit<'a, P>(&'a self, pat: P) -> RSplit<'a, P> where P: Pattern<'a>;
 
 struct RSplit<'a, P> where P: Pattern<'a> { ... }
-impl<'a, P> Clone for RSplit<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Clone for RSplit<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
 impl<'a, P> Iterator for RSplit<'a, P>
     where P: Pattern<'a> + Clone, P::Searcher: ReverseSearcher<'a> {
     type Item = &'a OsStr;
@@ -114,7 +116,7 @@ impl<'a, P> DoubleEndedIterator for RSplit<'a, P>
 /// skipped if empty.  See `str::split_terminator` for details.
 ///
 /// Note that patterns can only match UTF-8 sections of the `OsStr`.
-pub fn split_terminator<'a, P>(&'a self, pat: P) -> SplitTerminator<'a, P>
+fn split_terminator<'a, P>(&'a self, pat: P) -> SplitTerminator<'a, P>
     where P: Pattern<'a>;
 
 struct SplitTerminator<'a, P> where P: Pattern<'a> { ... }
@@ -131,7 +133,7 @@ impl<'a, P> DoubleEndedIterator for SplitTerminator<'a, P>
 /// skipped if empty.  See `str::rsplit_terminator` for details.
 ///
 /// Note that patterns can only match UTF-8 sections of the `OsStr`.
-pub fn rsplit_terminator<'a, P>(&'a self, pat: P) -> RSplitTerminator<'a, P>
+fn rsplit_terminator<'a, P>(&'a self, pat: P) -> RSplitTerminator<'a, P>
     where P: Pattern<'a>;
 
 struct RSplitTerminator<'a, P> where P: Pattern<'a> { ... }
@@ -150,10 +152,12 @@ impl<'a, P> DoubleEndedIterator for RSplitTerminator<'a, P>
 /// items.  See `str::splitn` for details.
 ///
 /// Note that patterns can only match UTF-8 sections of the `OsStr`.
-fn splitn<'a, P>(&'a self, count: usize, pat: P) -> SplitN<'a, P> where P: Pattern<'a>;
+fn splitn<'a, P>(&'a self, count: usize, pat: P) -> SplitN<'a, P>
+    where P: Pattern<'a>;
 
 struct SplitN<'a, P> where P: Pattern<'a> { ... }
-impl<'a, P> Clone for SplitN<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Clone for SplitN<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
 impl<'a, P> Iterator for SplitN<'a, P> where P: Pattern<'a> + Clone {
     type Item = &'a OsStr;
     ...
@@ -164,10 +168,12 @@ impl<'a, P> Iterator for SplitN<'a, P> where P: Pattern<'a> + Clone {
 /// at most `count` items.  See `str::rsplitn` for details.
 ///
 /// Note that patterns can only match UTF-8 sections of the `OsStr`.
-fn rsplitn<'a, P>(&'a self, count: usize, pat: P) -> RSplitN<'a, P> where P: Pattern<'a>;
+fn rsplitn<'a, P>(&'a self, count: usize, pat: P) -> RSplitN<'a, P>
+    where P: Pattern<'a>;
 
 struct RSplitN<'a, P> where P: Pattern<'a> { ... }
-impl<'a, P> Clone for RSplitN<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Clone for RSplitN<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
 impl<'a, P> Iterator for RSplitN<'a, P>
     where P: Pattern<'a> + Clone, P::Searcher: ReverseSearcher<'a> {
     type Item = &'a OsStr;
@@ -181,7 +187,8 @@ impl<'a, P> Iterator for RSplitN<'a, P>
 fn matches<'a, P>(&'a self, pat: P) -> Matches<'a, P> where P: Pattern<'a>;
 
 struct Matches<'a, P> where P: Pattern<'a> { ... }
-impl<'a, P> Clone for Matches<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Clone for Matches<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
 impl<'a, P> Iterator for Matches<'a, P> where P: Pattern<'a> + Clone {
     type Item = &'a str;
     ...
@@ -196,7 +203,8 @@ impl<'a, P> DoubleEndedIterator for Matches<'a, P>
 fn rmatches<'a, P>(&'a self, pat: P) -> RMatches<'a, P> where P: Pattern<'a>;
 
 struct RMatches<'a, P> where P: Pattern<'a> { ... }
-impl<'a, P> Clone for RMatches<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Clone for RMatches<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
 impl<'a, P> Iterator for RMatches<'a, P>
     where P: Pattern<'a> + Clone, P::Searcher: ReverseSearcher<'a> {
     type Item = &'a str;
