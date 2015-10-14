@@ -110,6 +110,35 @@ impl<'a, P> Iterator for RSplit<'a, P>
 impl<'a, P> DoubleEndedIterator for RSplit<'a, P>
     where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
 
+/// An iterator over substrings of `self` separated by characters
+/// matched by a pattern, restricted to returning at most `count`
+/// items.  See `str::splitn` for details.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+fn splitn<'a, P>(&'a self, count: usize, pat: P) -> SplitN<'a, P> where P: Pattern<'a>;
+
+struct SplitN<'a, P> where P: Pattern<'a> { ... }
+impl<'a, P> Clone for SplitN<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Iterator for SplitN<'a, P> where P: Pattern<'a> + Clone {
+    type Item = &'a OsStr;
+    ...
+}
+
+/// An iterator over substrings of `self` separated by characters
+/// matched by a pattern, in reverse order, restricted to returning
+/// at most `count` items.  See `str::rsplitn` for details.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+fn rsplitn<'a, P>(&'a self, count: usize, pat: P) -> RSplitN<'a, P> where P: Pattern<'a>;
+
+struct RSplitN<'a, P> where P: Pattern<'a> { ... }
+impl<'a, P> Clone for RSplitN<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Iterator for RSplitN<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: ReverseSearcher<'a> {
+    type Item = &'a OsStr;
+    ...
+}
+
 /// An iterator over matches of a pattern in `self`.  See
 /// `str::matches` for details.
 ///
@@ -271,8 +300,9 @@ be desirable.
 
 # Unresolved questions
 
-The correct behavior of `split` or `matches` with a pattern that
-matches the empty string is not clear.  Possibilities include:
+The correct behavior of `split`, `matches`, and similar functions with
+a pattern that matches the empty string is not clear.  Possibilities
+include:
 
 * panic
 * match on "character boundaries", probably defined as the ends of the
