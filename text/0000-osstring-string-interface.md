@@ -48,7 +48,8 @@ transfers ownership.  This operation can be done without a copy if the
 
 ## `OsStr`
 
-OsStr will get the following new methods:
+OsStr will get the following new methods (with supporting code
+interspersed):
 ```rust
 /// Returns true if `needle` is a substring of `self`.
 fn contains_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
