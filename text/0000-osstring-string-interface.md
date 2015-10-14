@@ -110,6 +110,41 @@ impl<'a, P> Iterator for RSplit<'a, P>
 impl<'a, P> DoubleEndedIterator for RSplit<'a, P>
     where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
 
+/// Equivalent to `split`, except the trailing substring is
+/// skipped if empty.  See `str::split_terminator` for details.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+pub fn split_terminator<'a, P>(&'a self, pat: P) -> SplitTerminator<'a, P>
+    where P: Pattern<'a>;
+
+struct SplitTerminator<'a, P> where P: Pattern<'a> { ... }
+impl<'a, P> Clone for SplitTerminator<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Iterator for SplitTerminator<'a, P> where P: Pattern<'a> + Clone {
+    type Item = &'a OsStr;
+    ...
+}
+impl<'a, P> DoubleEndedIterator for SplitTerminator<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
+
+/// Equivalent to `rsplit`, except the trailing substring is
+/// skipped if empty.  See `str::rsplit_terminator` for details.
+///
+/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+pub fn rsplit_terminator<'a, P>(&'a self, pat: P) -> RSplitTerminator<'a, P>
+    where P: Pattern<'a>;
+
+struct RSplitTerminator<'a, P> where P: Pattern<'a> { ... }
+impl<'a, P> Clone for RSplitTerminator<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Iterator for RSplitTerminator<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: ReverseSearcher<'a> {
+    type Item = &'a OsStr;
+    ...
+}
+impl<'a, P> DoubleEndedIterator for RSplitTerminator<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
+
 /// An iterator over substrings of `self` separated by characters
 /// matched by a pattern, restricted to returning at most `count`
 /// items.  See `str::splitn` for details.
