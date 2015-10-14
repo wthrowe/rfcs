@@ -237,10 +237,13 @@ The first three of these (`contains_os`, `starts_with_os`, and
 `ends_with_os`) test for `OsStr` substrings of an `OsStr`.
 
 The remainder implement a subset of the string pattern matching
-functionality of `OsStr`.  These functions act the same as the `str`
+functionality of `str`.  These functions act the same as the `str`
 versions, except that some of them require an additional `Clone` bound
 on the pattern.  Note that patterns can only match UTF-8 sections of
-the `OsStr`.
+the `OsStr`.  The additional `Clone` bounds are required because
+`Pattern`s are single-use objects (all their methods take `self` by
+value), and it is necessary to operate separately on each UTF-8
+section of an `OsStr`.
 
 FIXME
 These methods fall into two categories.  The first four
