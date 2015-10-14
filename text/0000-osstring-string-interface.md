@@ -245,6 +245,23 @@ the `OsStr`.  The additional `Clone` bounds are required because
 value), and it is necessary to operate separately on each UTF-8
 section of an `OsStr`.
 
+### Methods not included
+
+Most of he `str` methods not proposed for `OsStr` are those that take
+or return indexes into the `str`.  Additionally, `slice_shift_at` was
+left out due to its instability and likely upcoming removal from
+`str`; `chars` and `parse` were left out because they don't make sense
+(although a `chars_lossy` or something returning `u8`/`u16` newtype on
+Unix/Windows would be possible); and `to_lowercase` and `to_uppercase`
+were left out on the grounds that applying Unicode transformations to
+an `OsStr` seems likely to be an unusual operation (and they can be
+easily written in terms of existing functionality if someone needs
+them).
+
+Some kind of escaping function (along the lines of
+`str::escape_default` or `str::escape_unicode`) might be useful, but
+the correct form of such a function is unclear.
+
 FIXME
 These methods fall into two categories.  The first four
 (`starts_with_str`, `remove_prefix_str`, `slice_shift_char`, and
@@ -373,3 +390,9 @@ include:
 
 In any case, care should be taken to handle patterns that can match
 both the empty string and non-empty strings correctly.
+
+# Future work
+
+It is not currently possible to read or write `OsString`s in a
+platform-independent manner.  Adding this functionality is likely
+desirable.
