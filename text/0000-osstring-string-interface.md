@@ -145,7 +145,14 @@ impl<'a, P> Iterator for RSplitN<'a, P>
 /// Note that patterns can only match UTF-8 sections of the `OsStr`.
 fn matches<'a, P>(&'a self, pat: P) -> Matches<'a, P> where P: Pattern<'a>;
 
-struct Matches<'a, P> // with the same bounds and impls as Split
+struct Matches<'a, P> where P: Pattern<'a> { ... }
+impl<'a, P> Clone for Matches<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Iterator for Matches<'a, P> where P: Pattern<'a> + Clone {
+    type Item = &'a str;
+    ...
+}
+impl<'a, P> DoubleEndedIterator for Matches<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
 
 /// An iterator over matches of a pattern in `self`, in reverse
 /// order.  See `str::rmatches` for details.
@@ -153,7 +160,15 @@ struct Matches<'a, P> // with the same bounds and impls as Split
 /// Note that patterns can only match UTF-8 sections of the `OsStr`.
 fn rmatches<'a, P>(&'a self, pat: P) -> RMatches<'a, P> where P: Pattern<'a>;
 
-struct RMatches<'a, P> // with the same bounds and impls as RSplit
+struct RMatches<'a, P> where P: Pattern<'a> { ... }
+impl<'a, P> Clone for RMatches<'a, P> where P: Pattern<'a> + Clone, P::Searcher: Clone { ... }
+impl<'a, P> Iterator for RMatches<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: ReverseSearcher<'a> {
+    type Item = &'a str;
+    ...
+}
+impl<'a, P> DoubleEndedIterator for RMatches<'a, P>
+    where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
 
 /// Returns true if the string starts with a valid UTF-8 sequence
 /// equal to the given `&str`.
