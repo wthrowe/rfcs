@@ -44,7 +44,7 @@ fn into_string_lossy(self) -> String;
 
 This is analogous to the existing `OsStr::to_string_lossy` method, but
 transfers ownership.  This operation can be done without a copy if the
-`OsString` contains UTF-8 data or if the platform is Windows.
+`OsString` contains Unicode data or if the platform is Windows.
 
 ## `OsStr`
 
@@ -89,24 +89,24 @@ impl<'a> DoubleEndedIterator for Lines<'a> { ... }
 
 /// Returns true if `self` matches `pat`.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn contains<'a, P>(&'a self, pat: P) -> bool where P: Pattern<'a> + Clone;
 
 /// Returns true if the beginning of `self` matches `pat`.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn starts_with<'a, P>(&'a self, pat: P) -> bool where P: Pattern<'a>;
 
 /// Returns true if the end of `self` matches `pat`.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn ends_with<'a, P>(&'a self, pat: P) -> bool
     where P: Pattern<'a>, P::Searcher: ReverseSearcher<'a>;
 
 /// An iterator over substrings of `self` separated by characters
 /// matched by a pattern.  See `str::split` for details.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn split<'a, P>(&'a self, pat: P) -> Split<'a, P> where P: Pattern<'a>;
 
 struct Split<'a, P> where P: Pattern<'a> { ... }
@@ -123,7 +123,7 @@ impl<'a, P> DoubleEndedIterator for Split<'a, P>
 /// matched by a pattern, in reverse order.  See `str::rsplit` for
 /// details.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn rsplit<'a, P>(&'a self, pat: P) -> RSplit<'a, P> where P: Pattern<'a>;
 
 struct RSplit<'a, P> where P: Pattern<'a> { ... }
@@ -140,7 +140,7 @@ impl<'a, P> DoubleEndedIterator for RSplit<'a, P>
 /// Equivalent to `split`, except the trailing substring is
 /// skipped if empty.  See `str::split_terminator` for details.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn split_terminator<'a, P>(&'a self, pat: P) -> SplitTerminator<'a, P>
     where P: Pattern<'a>;
 
@@ -157,7 +157,7 @@ impl<'a, P> DoubleEndedIterator for SplitTerminator<'a, P>
 /// Equivalent to `rsplit`, except the trailing substring is
 /// skipped if empty.  See `str::rsplit_terminator` for details.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn rsplit_terminator<'a, P>(&'a self, pat: P) -> RSplitTerminator<'a, P>
     where P: Pattern<'a>;
 
@@ -176,7 +176,7 @@ impl<'a, P> DoubleEndedIterator for RSplitTerminator<'a, P>
 /// matched by a pattern, restricted to returning at most `count`
 /// items.  See `str::splitn` for details.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn splitn<'a, P>(&'a self, count: usize, pat: P) -> SplitN<'a, P>
     where P: Pattern<'a>;
 
@@ -192,7 +192,7 @@ impl<'a, P> Iterator for SplitN<'a, P> where P: Pattern<'a> + Clone {
 /// matched by a pattern, in reverse order, restricted to returning
 /// at most `count` items.  See `str::rsplitn` for details.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn rsplitn<'a, P>(&'a self, count: usize, pat: P) -> RSplitN<'a, P>
     where P: Pattern<'a>;
 
@@ -208,7 +208,7 @@ impl<'a, P> Iterator for RSplitN<'a, P>
 /// An iterator over matches of a pattern in `self`.  See
 /// `str::matches` for details.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn matches<'a, P>(&'a self, pat: P) -> Matches<'a, P> where P: Pattern<'a>;
 
 struct Matches<'a, P> where P: Pattern<'a> { ... }
@@ -224,7 +224,7 @@ impl<'a, P> DoubleEndedIterator for Matches<'a, P>
 /// An iterator over matches of a pattern in `self`, in reverse
 /// order.  See `str::rmatches` for details.
 ///
-/// Note that patterns can only match UTF-8 sections of the `OsStr`.
+/// Note that patterns can only match Unicode sections of the `OsStr`.
 fn rmatches<'a, P>(&'a self, pat: P) -> RMatches<'a, P> where P: Pattern<'a>;
 
 struct RMatches<'a, P> where P: Pattern<'a> { ... }
@@ -288,10 +288,10 @@ The first three of these (`contains_os`, `starts_with_os`, and
 The remainder implement a subset of the string pattern matching
 functionality of `str`.  These functions act the same as the `str`
 versions, except that some of them require an additional `Clone` bound
-on the pattern.  Note that patterns can only match UTF-8 sections of
+on the pattern.  Note that patterns can only match Unicode sections of
 the `OsStr`.  The additional `Clone` bounds are required because
 `Pattern`s are single-use objects (all their methods take `self` by
-value), and it is necessary to operate separately on each UTF-8
+value), and it is necessary to operate separately on each Unicode
 section of an `OsStr`.
 
 ### Methods not included
@@ -433,7 +433,7 @@ include:
 
 * panic
 * match on "character boundaries", probably defined as the ends of the
-  string and adjacent to each UTF-8 character.
+  string and adjacent to each Unicode character.
 * define the behavior to commute with `to_string_lossy` (assuming the
   pattern does not match anything including the replacement character)
 
