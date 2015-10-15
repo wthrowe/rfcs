@@ -394,7 +394,7 @@ of building up an `OsString` from parts than repeatedly calling
 # Drawbacks
 
 This is a somewhat unusual string interface in that many of the
-functions only accepts UTF-8 encoded data, while the type can encode
+functions only accept UTF-8 encoded data, while the type can encode
 more general strings.  Unfortunately, in many cases it is not possible
 to generalize the interface to accept non-UTF-8 data.  For example, on
 Windows, the following should hold using a hypothetical
