@@ -62,6 +62,31 @@ fn ends_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 
 use std::str::pattern::{DoubleEndedSearcher, Pattern, ReverseSearcher};
 
+/// An iterator over the non-empty substrings of `self` that
+/// contain no whitespace and are separated by whitespace.
+fn split_whitespace<'a>(&'a self) -> SplitWhitespace<'a>;
+
+struct SplitWhitespace<'a> { ... }
+impl<'a> Clone for SplitWhitespace<'a> { ... }
+impl<'a> Iterator for SplitWhitespace<'a> {
+    type Item = &'a OsStr;
+    ...
+}
+impl<'a> DoubleEndedIterator for SplitWhitespace<'a> { ... }
+
+/// An iterator over the lines of `self`, separated by `\n` of
+/// `\r\n`.  This does not return an empty string after a trailing
+/// `\n`.
+fn lines<'a>(&'a self) -> Lines<'a>
+
+struct Lines<'a> { ... }
+impl<'a> Clone for Lines<'a> { ... }
+impl<'a> Iterator for Lines<'a> {
+    type Item = &'a OsStr;
+    ...
+}
+impl<'a> DoubleEndedIterator for Lines<'a> { ... }
+
 /// Returns true if `self` matches `pat`.
 ///
 /// Note that patterns can only match UTF-8 sections of the `OsStr`.
@@ -212,6 +237,30 @@ impl<'a, P> Iterator for RMatches<'a, P>
 }
 impl<'a, P> DoubleEndedIterator for RMatches<'a, P>
     where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a> { ... }
+
+/// Returns a `&OsStr` with leading and trailing whitespace removed.
+fn trim(&self) -> &OsStr;
+
+/// Returns a `&OsStr` with leading whitespace removed.
+fn trim_left(&self) -> &OsStr;
+
+/// Returns a `&OsStr` with trailing whitespace removed.
+fn trim_right(&self) -> &OsStr;
+
+/// Returns a `&OsStr` with leading and trailing matches of `pat`
+/// repeatedly removed.
+fn trim_matches<'a, P>(&'a self, pat: P) -> &'a OsStr
+    where P: Pattern<'a> + Clone, P::Searcher: DoubleEndedSearcher<'a>;
+
+/// Returns a `&OsStr` with leading matches of `pat` repeatedly
+/// removed.
+fn trim_left_matches<'a, P>(&'a self, pat: P) -> &'a OsStr
+    where P: Pattern<'a>;
+
+/// Returns a `&OsStr` with trailing matches of `pat` repeatedly
+/// removed.
+fn trim_right_matches<'a, P>(&'a self, pat: P) -> &'a OsStr
+    where P: Pattern<'a>, P::Searcher: ReverseSearcher<'a>;
 
 /// Returns true if the string starts with a valid UTF-8 sequence
 /// equal to the given `&str`.
