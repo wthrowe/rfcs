@@ -339,9 +339,8 @@ impl<S> SliceConcatExt<OsStr> for [S] where S: Borrow<OsStr> {
 ```
 
 This has the same behavior as the `str` version, except that it works
-on OS strings.  It is intended as a more convenient and efficient way
-of building up an `OsString` from parts than repeatedly calling
-`push`.
+on OS strings.  It is a more convenient and efficient way of building
+up an `OsString` from parts than repeatedly calling `push`.
 
 # Drawbacks
 
