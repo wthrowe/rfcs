@@ -55,9 +55,9 @@ the platform's standard Unicode encoding.
   section if there is any substring containing that byte that is a
   valid UTF-8 encoded character.  The self-synchronization property of
   UTF-8 guarantees that there can be at most one such substring for a
-  give byte.  These code points are treated as Unicode characters, and
-  all other bytes are treated as non-Unicode.  Note that this means
-  that any byte with value less than 128 will be interpreted as
+  given byte.  These code points are treated as Unicode characters,
+  and all other bytes are treated as non-Unicode.  Note that this
+  means that any byte with value less than 128 will be interpreted as
   Unicode.
 
 ## `OsString`
@@ -151,10 +151,10 @@ impl<'a> Iterator for SplitWhitespace<'a> {
 }
 impl<'a> DoubleEndedIterator for SplitWhitespace<'a> { ... }
 
-/// An iterator over the lines of `self`, separated by `\n` of
+/// An iterator over the lines of `self`, separated by `\n` or
 /// `\r\n`.  This does not return an empty string after a trailing
 /// `\n`.
-fn lines<'a>(&'a self) -> Lines<'a>
+fn lines<'a>(&'a self) -> Lines<'a>;
 
 struct Lines<'a> { ... }
 impl<'a> Clone for Lines<'a> { ... }
