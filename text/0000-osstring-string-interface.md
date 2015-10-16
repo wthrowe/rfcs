@@ -399,6 +399,19 @@ both the empty string and non-empty strings correctly.
 
 # Future work
 
+There are many common operations that, while possible to perform using
+this interface, are still undesirably difficult.  It may be desirable
+to add functions to simplify these operations, but such a proposal
+should consider modifying the `str` interface at the same time, and so
+is out of scope of this RFC.
+
+(An example of such a difficult operation is reading and removing a
+pattern match from the start of a string.  For an `OsStr` this will
+most likely be performed by using both `matches` and `splitn`, which
+duplicates the work of performing the pattern matching.  For `str`
+this operation can be performed using a single search followed by
+slicing.)
+
 It is not currently possible to read or write `OsString`s in a
 platform-independent manner.  Adding this functionality is likely
 desirable.
