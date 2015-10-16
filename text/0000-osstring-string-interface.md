@@ -44,11 +44,11 @@ section as Unicode if there is any possible interpretation of it in
 the platform's standard Unicode encoding.
 
 * In Windows, OS strings are sequences of ill-formed UTF-16 code
-  units.  (The internal representation is a WTF-8 encoded string, but,
-  aside from determining what operations can be performed efficiently,
-  this is not exposed in the interface.)  Unpaired surrogates are
-  identified as non-Unicode, and everything else is treated as valid
-  UTF-16.
+  units.  (Rust's internal representation is a WTF-8 encoded string,
+  but, aside from determining what operations can be performed
+  efficiently, this is not exposed in the interface.)  Unpaired
+  surrogates are identified as non-Unicode, and everything else is
+  treated as valid UTF-16.
 
 * In Unix, OS strings are arbitrary byte sequences, which are often
   interpreted as UTF-8.  A byte is treated as being part of a Unicode
