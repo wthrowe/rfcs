@@ -80,6 +80,43 @@ transfers ownership.  This operation can be done without a copy if the
 OsStr will get the following new methods (with supporting code
 and explanations interspersed):
 ```rust
+/// Returns an iterator over the Unicode and non-Unicode sections
+/// of the string.  Sections will always be nonempty and Unicode
+/// and non-Unicode sections will always alternate.
+///
+/// # Example
+///
+/// ```
+/// use std::ffi::{OsStr, OsStrSection};
+/// let string = OsStr::new("Hello!");
+/// match string.split_unicode().next().unwrap() {
+///     OsStrSection::Unicode(s) => assert_eq!(s, "Hello!"),
+///     OsStrSection::NonUnicode(s) => panic!("Got non-Unicode: {:?}", s),
+/// }
+/// ```
+fn split_unicode<'a>(&'a self) -> SplitUnicode<'a>;
+
+#[derive(Clone)]
+struct SplitUnicode<'a> { ... }
+impl<'a> Iterator for SplitUnicode<'a> {
+    type Item = Section<'a>;
+    ...
+}
+impl<'a> DoubleEndedIterator for SplitUnicode<'a> { ... }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Section<'a> {
+    Unicode(&'a str),
+    NonUnicode(&'a OsStr),
+}
+
+```
+
+This provides access to the Unicode and non-Unicode sections of the
+string, as defined above.
+
+
+```rust
 /// Returns true if `needle` is a substring of `self`.
 fn contains_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 
