@@ -40,8 +40,8 @@ platform-specific code.
 
 The method for deciding which portions of an `OsStr` correspond to
 Unicode code points tries to be as inclusive as possible, treating a
-section as Unicode if there is any possible Unicode interpretation of
-it in the platform's standard Unicode encoding.
+section as Unicode if there is any possible interpretation of it in
+the platform's standard Unicode encoding.
 
 * In Windows, OS strings are sequences of ill-formed UTF-16 code
   units.  (The internal representation is a WTF-8 encoded string, but,
