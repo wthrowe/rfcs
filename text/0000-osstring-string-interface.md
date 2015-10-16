@@ -31,6 +31,37 @@ processing needs of rustc.
 
 # Detailed design
 
+The overall design of this API is to treat OS strings as mixtures of
+Unicode code points and other system-specific things.  It allows the
+Unicode portions to be manipulated as if they were part of a `str`,
+treating the non-Unicode portions surrounding them as uninterpretable
+objects.  A very limited set of operations are provided that can
+examine and manipulate the non-Unicode portions, but it is expected
+that any real interpretation of those sections will have to be done in
+platform-specific code.
+
+The method for deciding which portions of an `OsStr` correspond to
+Unicode code points tries to be as inclusive as possible, treating a
+section as Unicode if there is any possible Unicode interpretation of
+it in the platform's standard Unicode encoding.
+
+* In Windows, OS strings are sequences of ill-formed UTF-16 code
+  units.  (The internal representation is a WTF-8 encoded string, but,
+  aside from determining what operations can be performed efficiently,
+  this is not exposed in the interface.)  Unpaired surrogates are
+  identified as non-Unicode, and everything else is treated as valid
+  UTF-16.
+
+* In Unix, OS strings are arbitrary byte sequences, which are often
+  interpreted as UTF-8.  A byte is treated as being part of a Unicode
+  section if there is any substring containing that byte that is a
+  valid UTF-8 encoded character.  The self-synchronization property of
+  UTF-8 guarantees that there can be at most one such substring for a
+  give byte.  These code points are treated as Unicode characters, and
+  all other bytes are treated as non-Unicode.  Note that this means
+  that any byte with value less than 128 will be interpreted as
+  Unicode.
+
 ## `OsString`
 
 `OsString` will get the following new method:
@@ -49,7 +80,7 @@ transfers ownership.  This operation can be done without a copy if the
 ## `OsStr`
 
 OsStr will get the following new methods (with supporting code
-interspersed):
+and explanations interspersed):
 ```rust
 /// Returns true if `needle` is a substring of `self`.
 fn contains_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
@@ -62,7 +93,15 @@ fn ends_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 
 /// Replaces all occurrences of one string with another.
 fn replace<T: AsRef<OsStr>, U: AsRef<OsStr>>(&self, from: T, to: U) -> OsString;
+```
 
+These functions work with `OsStr` substrings of an `OsStr`, and ignore
+any possible Unicode meanings.  They consider OS strings to be
+composed of a sequence of platform-defined atomic objects (bytes for
+Unix and code units for Windows), and then perform standard substring
+operations with these "OS characters".
+
+```rust
 use std::str::pattern::{DoubleEndedSearcher, Pattern, ReverseSearcher};
 
 /// An iterator over the non-empty substrings of `self` that
@@ -264,7 +303,19 @@ fn trim_left_matches<'a, P>(&'a self, pat: P) -> &'a OsStr
 /// removed.
 fn trim_right_matches<'a, P>(&'a self, pat: P) -> &'a OsStr
     where P: Pattern<'a>, P::Searcher: ReverseSearcher<'a>;
+```
 
+These functions implement a subset of the string pattern matching
+functionality of `str`.  They act the same as the `str` versions,
+except that some of them require an additional `Clone` bound on the
+pattern (because patterns are single-use objects and each Unicode
+segment must be treated separately).  Patterns can only match Unicode
+sections of the `OsStr`, but operations such as `split` can return
+partially non-Unicode data.
+
+
+
+```rust
 /// Returns true if the string starts with a valid UTF-8 sequence
 /// equal to the given `&str`.
 fn starts_with_str(&self, prefix: &str) -> bool;
@@ -284,19 +335,6 @@ fn slice_shift_char(&self) -> Option<(char, &OsStr)>;
 /// character.  Otherwise returns `None`.
 fn split_off_str(&self, boundary: char) -> Option<(&str, &OsStr)>;
 ```
-
-The first four of these (`contains_os`, `starts_with_os`,
-`ends_with_os`, and `replace`) work with `OsStr` substrings of an
-`OsStr`.
-
-The remainder implement a subset of the string pattern matching
-functionality of `str`.  These functions act the same as the `str`
-versions, except that some of them require an additional `Clone` bound
-on the pattern.  Note that patterns can only match Unicode sections of
-the `OsStr`.  The additional `Clone` bounds are required because
-`Pattern`s are single-use objects (all their methods take `self` by
-value), and it is necessary to operate separately on each Unicode
-section of an `OsStr`.
 
 ### Methods not included
 
