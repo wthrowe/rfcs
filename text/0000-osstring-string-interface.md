@@ -99,13 +99,13 @@ fn split_unicode<'a>(&'a self) -> SplitUnicode<'a>;
 #[derive(Clone)]
 struct SplitUnicode<'a> { ... }
 impl<'a> Iterator for SplitUnicode<'a> {
-    type Item = Section<'a>;
+    type Item = OsStrSection<'a>;
     ...
 }
 impl<'a> DoubleEndedIterator for SplitUnicode<'a> { ... }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Section<'a> {
+pub enum OsStrSection<'a> {
     Unicode(&'a str),
     NonUnicode(&'a OsStr),
 }
