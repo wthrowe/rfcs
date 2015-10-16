@@ -60,6 +60,9 @@ fn starts_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 /// Returns true if `needle` is a suffix of `self`.
 fn ends_with_os<S: AsRef<OsStr>>(&self, needle: S) -> bool;
 
+/// Replaces all occurrences of one string with another.
+fn replace<T: AsRef<OsStr>, U: AsRef<OsStr>>(&self, from: T, to: U) -> OsString;
+
 use std::str::pattern::{DoubleEndedSearcher, Pattern, ReverseSearcher};
 
 /// An iterator over the non-empty substrings of `self` that
@@ -282,8 +285,9 @@ fn slice_shift_char(&self) -> Option<(char, &OsStr)>;
 fn split_off_str(&self, boundary: char) -> Option<(&str, &OsStr)>;
 ```
 
-The first three of these (`contains_os`, `starts_with_os`, and
-`ends_with_os`) test for `OsStr` substrings of an `OsStr`.
+The first four of these (`contains_os`, `starts_with_os`,
+`ends_with_os`, and `replace`) work with `OsStr` substrings of an
+`OsStr`.
 
 The remainder implement a subset of the string pattern matching
 functionality of `str`.  These functions act the same as the `str`
