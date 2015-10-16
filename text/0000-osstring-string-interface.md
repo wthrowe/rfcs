@@ -409,6 +409,8 @@ they can be added at a later time.
 
 # Alternatives
 
+Create a new API without copying `str` as closely as possible.
+
 ## Stricter bounds on the pattern-accepting iterator constructors
 
 The proposed bounds on the pattern-accepting functions are the weakest
