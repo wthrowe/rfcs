@@ -448,7 +448,3 @@ most likely be performed by using both `matches` and `splitn`, which
 duplicates the work of performing the pattern matching.  For `str`
 this operation can be performed using a single search followed by
 slicing.)
-
-It is not currently possible to read or write `OsString`s in a
-platform-independent manner.  Adding this functionality is likely
-desirable.
