@@ -18,16 +18,14 @@ will offer a full-fledged string API."  This is intended as a step in
 that direction.
 
 Having an ergonomic way to manipulate OS strings is needed to allow
-programs to easily handle non-UTF-8 data received from the operating
+programs to easily handle non-Unicode data received from the operating
 system.  Currently, it is common for programs to just convert OS data
 to `String`s, which leads to undesirable panics in the unusual case
-where the input is not UTF-8.  For example, currently, calling rustc
-with a non-UTF-8 command line argument will result in an immediate
-panic.  Fixing that in a way that actually handles non-UTF-8 data
-correctly (as opposed to, for example, just interpreting it lossily as
-UTF-8) would be very difficult with the current OS string API.  Most
-of the functions proposed here were motivated by the OS string
-processing needs of rustc.
+where the input is not Unicode.  For example, currently, calling rustc
+with a non-Unicode command line argument will result in an immediate
+panic.  Fixing that in a way that actually handles non-Unicode data
+correctly (as opposed to, for example, just interpreting it lossily)
+would be very difficult with the current OS string API.
 
 # Detailed design
 
@@ -313,29 +311,6 @@ segment must be treated separately).  Patterns can only match Unicode
 sections of the `OsStr`, but operations such as `split` can return
 partially non-Unicode data.
 
-
-
-```rust
-/// Returns true if the string starts with a valid UTF-8 sequence
-/// equal to the given `&str`.
-fn starts_with_str(&self, prefix: &str) -> bool;
-
-/// If the string starts with the given `&str`, returns the rest
-/// of the string.  Otherwise returns `None`.
-fn remove_prefix_str(&self, prefix: &str) -> Option<&OsStr>;
-
-/// Retrieves the first character from the `OsStr` and returns it
-/// and the remainder of the `OsStr`.  Returns `None` if the
-/// `OsStr` does not start with a character (either because it it
-/// empty or because it starts with non-UTF-8 data).
-fn slice_shift_char(&self) -> Option<(char, &OsStr)>;
-
-/// If the `OsStr` starts with a UTF-8 section followed by
-/// `boundary`, returns the sections before and after the boundary
-/// character.  Otherwise returns `None`.
-fn split_off_str(&self, boundary: char) -> Option<(&str, &OsStr)>;
-```
-
 ### Methods not included
 
 Most of he `str` methods not proposed for `OsStr` are those that take
@@ -352,71 +327,6 @@ them).
 Some kind of escaping function (along the lines of
 `str::escape_default` or `str::escape_unicode`) might be useful, but
 the correct form of such a function is unclear.
-
-FIXME
-These methods fall into two categories.  The first four
-(`starts_with_str`, `remove_prefix_str`, `slice_shift_char`, and
-`split_off_str`) interpret a prefix of the `OsStr` as UTF-8 data,
-while ignoring any non-UTF-8 parts later in the string.  The last is a
-restricted splitting operation.
-
-### `starts_with_str`
-
-`string.starts_with_str(prefix)` is logically equivalent to
-`string.remove_prefix_str(prefix).is_some()`, but is likely to be a
-common enough special case to warrant it's own clearer syntax.
-
-### `remove_prefix_str`
-
-This could be used for things such as removing the leading "--" from
-command line options as is common to enable simpler processing.
-Example:
-```rust
-let opt = OsString::from("--path=/some/path");
-assert_eq!(opt.remove_prefix_str("--"), Some(OsStr::new("path=/some/path")));
-```
-
-### `slice_shift_char`
-
-This performs the same function as the similarly named method on
-`str`, except that it also returns `None` if the `OsStr` does not
-start with a valid UTF-8 character.  While the `str` version of this
-function may be removed for being redundant with `str::chars`, the
-functionality is still needed here because it is not clear how an
-iterator over the contents of an `OsStr` could be defined in a
-platform-independent way.
-
-An intended use for this function is for interpreting bundled
-command-line switches.  For example, with switches from rustc:
-
-```rust
-let mut opts = &OsString::from("vL/path")[..]; // Leading '-' has already been removed
-while let Some((ch, rest)) = opts.slice_shift_char() {
-    opts = rest;
-    match ch {
-        'v' => { verbose = true; }
-        'L' => { /* interpret remainder as a link path */ }
-        ....
-    }
-}
-```
-
-### `split_off_str`
-
-This is intended for interpreting "tagged" OS strings, for example
-rustc's `-L [KIND=]PATH` arguments.  It is expected that such tags
-will usually be UTF-8.  Example:
-```rust
-let s = OsString::from("dylib=/path");
-
-let (name, kind) = match s.split_off_str('=') {
-    None => (&*s, cstore::NativeUnknown),
-    Some(("dylib", name)) => (name, cstore::NativeUnknown),
-    Some(("framework", name)) => (name, cstore::NativeFramework),
-    Some(("static", name)) => (name, cstore::NativeStatic),
-    Some((s, _)) => { error(...) }
-};
-```
 
 ## `SliceConcatExt`
 
