@@ -345,11 +345,11 @@ up an `OsString` from parts than repeatedly calling `push`.
 # Drawbacks
 
 This is a somewhat unusual string interface in that many of the
-functions only accept UTF-8 encoded data, while the type can encode
-more general strings.  Unfortunately, in many cases it is not possible
-to generalize the interface to accept non-UTF-8 data.  For example, on
-Windows, the following should hold using a hypothetical
-`split(&self, &OsStr) -> Split`:
+functions only accept Unicode data, while the type can encode more
+general strings.  Unfortunately, in many cases it is not possible to
+generalize the interface to accept non-Unicode input.  For example, on
+Windows, the following should hold using a hypothetical `split(&self,
+&OsStr) -> Split`:
 
 ```rust
 let string = OsString::from("😺"); // [0xD83D, 0xDE3A] in UTF-16
@@ -359,10 +359,16 @@ let suffix: OsString = OsStringExt::from_wide(&[0xDE3A]);
 assert_eq!(string.split(&suffix[..]).next(), Some(&prefix[..]));
 ```
 
-However, the slice `&prefix[..]` (internally `[0xED, 0xA0, 0xBD]`)
-does not occur anywhere in `string` (internally `[0xF0, 0x9F, 0x98,
-0xBA]`), so there would be no way to construct the values returned by
-such an iterator.
+However, `string` is represented internally as the WTF-8 bytes `[0xF0,
+0x9F, 0x98, 0xBA]`, and the slice `&prefix[..]` would be represented
+as `[0xED, 0xA0, 0xBD]`.  Since this sequence of bytes does not occur
+anywhere in `string`, there is no way to construct the borrowed return
+value.
+
+It would be possible to design an interface that returned
+`Cow<OsStr>`, but this would be a significant departure from the `str`
+interface.  If such functions are determined to be sufficiently useful
+they can be added at a later time.
 
 # Alternatives
 
