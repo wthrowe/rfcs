@@ -96,8 +96,8 @@ and explanations interspersed):
 /// ```
 fn split_unicode<'a>(&'a self) -> SplitUnicode<'a>;
 
-#[derive(Clone)]
 struct SplitUnicode<'a> { ... }
+impl<'a> Clone for SplitUnicode<'a> { ... }
 impl<'a> Iterator for SplitUnicode<'a> {
     type Item = OsStrSection<'a>;
     ...
@@ -105,7 +105,7 @@ impl<'a> Iterator for SplitUnicode<'a> {
 impl<'a> DoubleEndedIterator for SplitUnicode<'a> { ... }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum OsStrSection<'a> {
+enum OsStrSection<'a> {
     Unicode(&'a str),
     NonUnicode(&'a OsStr),
 }
